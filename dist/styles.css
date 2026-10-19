@@ -1,0 +1,447 @@
+/*
+ * @zonemation/morocco-map - import once: import "@zonemation/morocco-map/styles.css"
+ *
+ * Colours are --mm-* variables. By default they read shadcn's HSL tokens
+ * (--primary, --foreground, ...), so the map follows the app's brand and
+ * dark mode with no setup. An app whose tokens are not "H S% L%" triplets
+ * (e.g. shadcn v4 oklch) sets the --mm-* variables itself:
+ *
+ *   .mm-root { --mm-primary: var(--primary); --mm-fg: var(--foreground); ... }
+ */
+.mm-root {
+  --mm-primary: hsl(var(--primary, 0 72% 51%));
+  --mm-primary-fg: hsl(var(--primary-foreground, 0 0% 100%));
+  --mm-fg: hsl(var(--foreground, 0 0% 4%));
+  --mm-muted: hsl(var(--muted, 0 0% 96%));
+  --mm-muted-fg: hsl(var(--muted-foreground, 0 0% 45%));
+  --mm-bg: hsl(var(--background, 0 0% 100%));
+  --mm-card: hsl(var(--card, 0 0% 100%));
+  --mm-border: hsl(var(--border, 0 0% 90%));
+  --mm-accent: hsl(var(--accent, 0 0% 96%));
+  --mm-ring: hsl(var(--ring, 0 72% 51%));
+  --mm-popover: hsl(var(--popover, 0 0% 100%));
+  --mm-popover-fg: hsl(var(--popover-foreground, 0 0% 4%));
+  --mm-primary-soft: color-mix(in srgb, var(--mm-primary) 16%, var(--mm-card));
+  --mm-primary-soft-fg: color-mix(in srgb, var(--mm-primary) 80%, var(--mm-fg));
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--mm-fg);
+  font-size: 14px;
+  line-height: 1.4;
+}
+.mm-root *,
+.mm-root *::before,
+.mm-root *::after {
+  box-sizing: border-box;
+}
+.mm-root button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  margin: 0;
+  cursor: pointer;
+}
+.mm-root ol,
+.mm-root ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.mm-root p {
+  margin: 0;
+}
+.mm-truncate {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mm-num {
+  font-variant-numeric: tabular-nums;
+}
+.mm-icon,
+.mm-chev {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.mm-chev {
+  color: var(--mm-muted-fg);
+}
+[dir="rtl"] .mm-flip {
+  transform: scaleX(-1);
+}
+
+/* Breadcrumb and level steps */
+.mm-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+.mm-head nav {
+  min-width: 0;
+}
+.mm-crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+.mm-crumb {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.mm-crumb-link,
+.mm-crumb-current {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  min-width: 0;
+  padding: 0 6px;
+  border-radius: 6px;
+}
+.mm-root .mm-crumb-link {
+  color: var(--mm-primary);
+  font-weight: 500;
+}
+.mm-crumb-link:hover {
+  background: var(--mm-accent);
+  text-decoration: underline;
+}
+.mm-crumb-current {
+  font-weight: 600;
+}
+.mm-steps {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.mm-step-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.mm-step-line {
+  width: 12px;
+  height: 1px;
+  background: var(--mm-border);
+}
+.mm-step-line.is-past {
+  background: var(--mm-primary);
+}
+.mm-step {
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 12px;
+}
+.mm-step.is-current {
+  background: var(--mm-primary);
+  color: var(--mm-primary-fg);
+}
+.mm-step.is-past {
+  background: var(--mm-primary-soft);
+  color: var(--mm-primary-soft-fg);
+}
+.mm-step.is-next {
+  background: var(--mm-muted);
+  color: var(--mm-muted-fg);
+}
+
+/* Layout: map beside the list, stacked on phones */
+.mm-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 768px) {
+  .mm-grid {
+    grid-template-columns: 3fr 2fr;
+  }
+}
+.mm-mapcol {
+  position: relative;
+  min-width: 0;
+}
+.mm-side {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* The map */
+.mm-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 60vh;
+  margin: 0 auto;
+  user-select: none;
+  /* Zoomed out, a finger scrolls the page; zoomed in, it pans the map. */
+  touch-action: pan-y;
+}
+@media (min-width: 768px) {
+  .mm-svg {
+    max-height: none;
+  }
+}
+.mm-svg.is-zoomed {
+  touch-action: none;
+  cursor: grab;
+}
+.mm-svg.is-zoomed:active {
+  cursor: grabbing;
+}
+.mm-svg path,
+.mm-svg circle {
+  outline: none;
+}
+.mm-base {
+  fill: var(--mm-muted);
+  pointer-events: none;
+}
+.mm-region {
+  fill: transparent;
+  transition: fill-opacity 0.3s;
+}
+.mm-region.is-filled,
+.mm-province.is-filled {
+  fill: var(--mm-primary);
+}
+.mm-region.is-clickable,
+.mm-province,
+.mm-dot {
+  cursor: pointer;
+}
+.mm-region:focus-visible,
+.mm-province:focus-visible,
+.mm-dot:focus-visible {
+  stroke: var(--mm-ring);
+}
+.mm-province {
+  fill: transparent;
+  stroke: var(--mm-bg);
+  transition: opacity 0.2s;
+}
+.mm-province.is-dim {
+  opacity: 0.6;
+}
+.mm-borders {
+  fill: none;
+  stroke: var(--mm-bg);
+  pointer-events: none;
+}
+.mm-outline {
+  fill: none;
+  stroke: var(--mm-border);
+  pointer-events: none;
+}
+.mm-selected,
+.mm-hovered {
+  fill: none;
+  stroke: var(--mm-fg);
+  pointer-events: none;
+}
+.mm-hovered {
+  stroke-opacity: 0.7;
+}
+/* Dark dot, light ring: reads on a shaded province and a bare one, in both
+   themes. Brand ring = chosen or under the pointer. */
+.mm-dot {
+  fill: var(--mm-fg);
+  fill-opacity: 0.85;
+  stroke: var(--mm-bg);
+}
+.mm-dot.is-hot {
+  stroke: var(--mm-primary);
+}
+.mm-dot.is-dim {
+  fill-opacity: 0.5;
+}
+.mm-dot-label {
+  fill: var(--mm-fg);
+  stroke: var(--mm-bg);
+  paint-order: stroke;
+  pointer-events: none;
+}
+.mm-dot-label.is-current {
+  font-weight: 600;
+}
+
+/* Zoom buttons and hover tip */
+.mm-zoom {
+  position: absolute;
+  top: 8px;
+  inset-inline-end: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--mm-border);
+  border-radius: 6px;
+  background: var(--mm-card);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
+}
+.mm-zoom-btn {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+}
+.mm-zoom-btn + .mm-zoom-btn {
+  border-top: 1px solid var(--mm-border) !important;
+}
+.mm-zoom-btn:hover:not(:disabled) {
+  background: var(--mm-accent);
+}
+.mm-zoom-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.mm-tip {
+  position: absolute;
+  top: 8px;
+  inset-inline-start: 8px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--mm-popover);
+  color: var(--mm-popover-fg);
+  font-size: 12px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  pointer-events: none;
+}
+.mm-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  color: var(--mm-muted-fg);
+  font-size: 12px;
+}
+.mm-hint .mm-icon {
+  width: 14px;
+  height: 14px;
+}
+
+/* The list */
+.mm-here {
+  font-size: 16px;
+  font-weight: 600;
+}
+.mm-note {
+  color: var(--mm-muted-fg);
+  font-size: 12px;
+}
+.mm-empty {
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: var(--mm-muted);
+  color: var(--mm-muted-fg);
+}
+.mm-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mm-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 40px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  text-align: start;
+}
+.mm-row:hover,
+.mm-row.is-hover {
+  background: var(--mm-accent);
+}
+.mm-row.is-current {
+  background: var(--mm-accent);
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px var(--mm-primary);
+}
+.mm-root .mm-row.is-zero {
+  color: var(--mm-muted-fg);
+}
+.mm-row-name {
+  flex: 1;
+  min-width: 0;
+}
+.mm-row-sub {
+  display: block;
+  color: var(--mm-muted-fg);
+  font-size: 12px;
+  font-weight: 400;
+}
+.mm-bar {
+  display: none;
+  width: 64px;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--mm-muted);
+}
+@media (min-width: 640px) {
+  .mm-bar {
+    display: block;
+  }
+}
+.mm-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--mm-primary);
+}
+.mm-row-value {
+  width: 56px;
+  flex-shrink: 0;
+  text-align: end;
+}
+
+/* Loading */
+.mm-skel {
+  border-radius: 8px;
+  background: var(--mm-muted);
+  animation: mm-pulse 1.5s ease-in-out infinite;
+}
+.mm-skel-line {
+  width: 256px;
+  height: 36px;
+}
+.mm-skel-map {
+  aspect-ratio: 520 / 560;
+  width: 100%;
+}
+.mm-skel-row {
+  height: 32px;
+  margin-bottom: 8px;
+}
+@keyframes mm-pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mm-skel {
+    animation: none;
+  }
+  .mm-region,
+  .mm-province {
+    transition: none;
+  }
+}
