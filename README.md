@@ -15,13 +15,15 @@ Used by Jmla Pro. Built to drop into any Zonemation project.
 ## Install
 
 ```bash
-npm i github:stntr660/morocco-map#v0.1.0
-# or
-pnpm add github:stntr660/morocco-map#v0.1.0
+npm i https://github.com/stntr660/morocco-map/releases/download/v0.1.0/zonemation-morocco-map-0.1.0.tgz
+# or pnpm add <same URL>
 ```
 
-React 18 or 19. The built files are committed, so nothing builds at
-install. To update, change the tag.
+React 18 or 19. Install from the **release file**, not `github:...`: a
+git install needs `git` (and often SSH keys) in the Docker image, which
+slim Node images do not have. The release file is plain HTTPS, never
+changes, and the lockfile pins its checksum. To update, install the next
+release's URL.
 
 ## Use
 
@@ -94,7 +96,16 @@ npm run verify     # typecheck + tests + build; run before every tag
 npm run build:data # only when a source dataset changes, see scripts/build-data.mjs
 ```
 
-Release: bump `version`, `npm run verify`, commit `dist/`, tag `vX.Y.Z`,
-push the tag, then update the tag in each app.
+Release:
+
+```bash
+# bump "version" in package.json, then
+npm run verify
+git commit -am "vX.Y.Z: ..." && git tag -a vX.Y.Z -m "vX.Y.Z" && git push --follow-tags
+npm pack
+gh release create vX.Y.Z zonemation-morocco-map-X.Y.Z.tgz --title vX.Y.Z --notes "..."
+```
+
+Then install the new release URL in each app.
 
 Sources and licences: [LICENSES.md](LICENSES.md).
